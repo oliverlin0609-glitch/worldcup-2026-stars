@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>World Cup 2026 — The Stars Lighting Up North America</title>
+<meta name="description" content="The defining players of the FIFA World Cup 2026 — Ronaldo, Messi, Neymar and the new generation. Live Golden Boot race and results." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070809;
+    --bg-soft:#0d0f12;
+    --surface:#13161a;
+    --surface-2:#1a1e24;
+    --line:#262b33;
+    --line-soft:#1d222a;
+    --text:#f5f6f7;
+    --text-dim:#9aa3af;
+    --text-mute:#646b76;
+    --gold:#f5c518;
+    --gold-soft:#caa617;
+    --gold-glow:rgba(245,197,24,.30);
+    --green:#15b86a;
+    --red:#ff4d4f;
+    --radius:20px;
+    --radius-sm:12px;
+    --maxw:1240px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  .display{font-family:'Anton',Impact,sans-serif;font-weight:400;text-transform:uppercase;line-height:.9;letter-spacing:.01em}
+  .container{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(160%) blur(16px);background:rgba(7,8,9,.7);border-bottom:1px solid var(--line-soft)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;font-size:15px}
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(145deg,var(--gold),#e0a800);display:grid;place-items:center;color:#1a1205;box-shadow:0 4px 18px var(--gold-glow)}
+  .brand small{display:block;font-size:9px;letter-spacing:.22em;color:var(--text-mute);font-weight:700;margin-top:1px}
+  .nav-links{display:flex;gap:30px;font-size:14px;color:var(--text-dim)}
+  .nav-links a{padding:6px 0;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .nav-cta{display:flex;align-items:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font-weight:600;font-size:14px;transition:transform .15s ease,background .2s,box-shadow .2s,border-color .2s}
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:linear-gradient(145deg,var(--gold),#e6b000);color:#1a1205;font-weight:700}
+  .btn-primary:hover{box-shadow:0 10px 34px var(--gold-glow)}
+  .btn-ghost{border:1px solid var(--line);color:var(--text)}
+  .btn-ghost:hover{background:var(--surface);border-color:#39404a}
+
+  /* HERO */
+  .hero{position:relative;overflow:hidden;padding:72px 0 84px}
+  .hero::before{content:"";position:absolute;inset:-30% -10% auto -20%;height:760px;background:radial-gradient(60% 60% at 70% 30%,rgba(245,197,24,.16),transparent 70%);pointer-events:none}
+  .hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(70% 60% at 50% 40%,#000,transparent 80%);pointer-events:none}
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:54px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+  .eyebrow .live{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-weight:700}
+  .eyebrow .live .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(21,184,106,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(21,184,106,.5)}70%{box-shadow:0 0 0 9px rgba(21,184,106,0)}100%{box-shadow:0 0 0 0 rgba(21,184,106,0)}}
+  .hero h1{margin:24px 0 20px;font-size:clamp(58px,9.5vw,140px)}
+  .hero h1 .gold{color:var(--gold)}
+  .hero h1 .outline{color:transparent;-webkit-text-stroke:1.6px var(--text)}
+  .hero .lead{font-size:18px;line-height:1.65;color:var(--text-dim);max-width:50ch}
+  .hero-actions{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+  .hero-meta{display:flex;gap:34px;margin-top:40px}
+  .hero-meta .m strong{display:block;font-family:'Anton',Impact,sans-serif;font-size:30px;letter-spacing:.02em;color:var(--text)}
+  .hero-meta .m span{color:var(--text-mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .hero-meta .m strong .g{color:var(--gold)}
+
+  .hero-visual{position:relative;aspect-ratio:4/5;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:linear-gradient(160deg,#1c1708,#070809 62%)}
+  .hero-visual .photo{position:absolute;inset:0;background:radial-gradient(120% 90% at 65% 15%,rgba(245,197,24,.22),transparent 55%),url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&auto=format&fit=crop') center/cover no-repeat;filter:saturate(1.05) contrast(1.03)}
+  .hero-visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,rgba(7,8,9,.92) 100%)}
+  .hero-visual .badge{position:absolute;top:18px;left:18px;z-index:2;background:linear-gradient(145deg,var(--gold),#e6b000);color:#1a1205;font-weight:800;font-size:11px;padding:7px 12px;border-radius:7px;letter-spacing:.08em;text-transform:uppercase}
+  .hero-visual .cap{position:absolute;left:22px;right:22px;bottom:20px;z-index:2}
+  .hero-visual .cap .num{font-family:'Anton',Impact,sans-serif;font-size:70px;color:var(--gold);line-height:.85}
+  .hero-visual .cap .nm{font-family:'Anton',Impact,sans-serif;font-size:32px;text-transform:uppercase;margin-top:-4px}
+  .hero-visual .cap .ps{color:var(--text-dim);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+
+  /* HOSTS STRIP */
+  .hosts{border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);background:var(--bg-soft)}
+  .hosts-inner{display:flex;align-items:center;gap:30px;padding:20px 24px;flex-wrap:wrap}
+  .hosts-inner .lbl{color:var(--text-mute);font-size:12px;letter-spacing:.18em;text-transform:uppercase}
+  .hosts-inner .flags{display:flex;gap:26px;flex:1;flex-wrap:wrap;align-items:center}
+  .host{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:14px;font-weight:500}
+  .host img{width:30px;height:auto;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+
+  /* SECTION HEAD */
+  section.block{padding:96px 0}
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:50px;flex-wrap:wrap}
+  .section-head h2{font-size:clamp(40px,5.5vw,76px);margin:14px 0 0}
+  .section-head h2 .gold{color:var(--gold)}
+  .section-head .sub{color:var(--text-dim);max-width:46ch;line-height:1.65;font-size:15px}
+
+  /* BIG THREE */
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .goat{position:relative;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4.1;background:var(--surface);transition:transform .3s ease,border-color .3s}
+  .goat:hover{transform:translateY(-6px);border-color:var(--gold-soft)}
+  .goat .bg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:transform .7s ease}
+  .goat:hover .bg{transform:scale(1.05)}
+  .goat::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,8,9,.15) 0%,rgba(7,8,9,.55) 45%,rgba(7,8,9,.96) 100%)}
+  .goat .rank{position:absolute;top:16px;left:16px;z-index:3;display:flex;align-items:center;gap:8px;font-family:'Anton',Impact,sans-serif;font-size:46px;color:var(--gold);text-shadow:0 2px 20px rgba(245,197,24,.4);line-height:1}
+  .goat .crown{position:absolute;top:18px;right:16px;z-index:3}
+  .goat .info{position:absolute;left:20px;right:20px;bottom:20px;z-index:3}
+  .goat .info .flag{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .goat .info .flag img{width:26px;height:auto;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.6)}
+  .goat .info .flag span{color:var(--text-dim);font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+  .goat .info .nm{font-family:'Anton',Impact,sans-serif;font-size:38px;text-transform:uppercase;line-height:.92}
+  .goat .info .meta{display:flex;align-items:center;gap:14px;margin-top:10px;color:var(--text-dim);font-size:12px;letter-spacing:.06em}
+  .goat .info .meta .kit{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:24px;padding:0 7px;border:1px solid var(--line);border-radius:6px;color:var(--gold);font-weight:700;font-family:'Anton',sans-serif}
+
+  /* SQUAD GRID */
+  .squad{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .pcard{position:relative;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;aspect-ratio:3/4;background:var(--surface);transition:transform .25s ease,border-color .25s}
+  .pcard:hover{transform:translateY(-4px);border-color:#3a414c}
+  .pcard .bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s ease}
+  .pcard:hover .bg{transform:scale(1.05)}
+  .pcard::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,8,9,.08) 0%,rgba(7,8,9,.94) 82%)}
+  .pcard .kit{position:absolute;top:12px;right:12px;z-index:2;font-family:'Anton',Impact,sans-serif;font-size:34px;color:var(--gold);text-shadow:0 0 18px rgba(245,197,24,.3)}
+  .pcard .pos{position:absolute;top:14px;left:14px;z-index:2;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);background:rgba(7,8,9,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);padding:5px 9px;border-radius:999px}
+  .pcard .info{position:absolute;left:16px;right:16px;bottom:16px;z-index:2}
+  .pcard .info .flag{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .pcard .info .flag img{width:22px;height:auto;border-radius:2px}
+  .pcard .info .flag span{color:var(--text-dim);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+  .pcard .info .nm{font-family:'Anton',Impact,sans-serif;font-size:25px;text-transform:uppercase;line-height:.95}
+
+  /* LIVE DATA */
+  .live-wrap{background:var(--bg-soft);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+  .live-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:36px;flex-wrap:wrap}
+  .live-tag{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--text-dim)}
+  .live-tag .stat-dot{width:9px;height:9px;border-radius:50%;background:var(--text-mute)}
+  .live-tag.is-live .stat-dot{background:var(--green);box-shadow:0 0 0 0 rgba(21,184,106,.6);animation:pulse 2s infinite}
+  .live-tag.is-sample .stat-dot{background:var(--gold)}
+  .live-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
+  .panel{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+  .panel-h{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line-soft)}
+  .panel-h h3{margin:0;font-family:'Anton',Impact,sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+  .panel-h .hint{color:var(--text-mute);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+
+  .scorer{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:14px;padding:15px 22px;border-bottom:1px solid var(--line-soft)}
+  .scorer:last-child{border-bottom:0}
+  .scorer .pos{font-family:'Anton',Impact,sans-serif;font-size:22px;color:var(--text-mute);min-width:26px}
+  .scorer .pos.top{color:var(--gold)}
+  .scorer .ava{width:38px;height:38px;border-radius:50%;background:var(--surface-2) center/cover;border:1px solid var(--line)}
+  .scorer .who .n{font-weight:700;font-size:15px}
+  .scorer .who .t{color:var(--text-mute);font-size:12px;display:flex;align-items:center;gap:7px;margin-top:2px}
+  .scorer .who .t img{width:16px;border-radius:2px}
+  .scorer .goals{text-align:right}
+  .scorer .goals b{font-family:'Anton',Impact,sans-serif;font-size:26px;color:var(--gold);line-height:1}
+  .scorer .goals span{display:block;color:var(--text-mute);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+
+  .match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:16px 22px;border-bottom:1px solid var(--line-soft)}
+  .match:last-child{border-bottom:0}
+  .match .side{display:flex;align-items:center;gap:10px;min-width:0}
+  .match .side.r{flex-direction:row-reverse;text-align:right}
+  .match .side img{width:24px;border-radius:2px;flex-shrink:0}
+  .match .side .nm{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .match .score{font-family:'Anton',Impact,sans-serif;font-size:24px;letter-spacing:.04em;padding:4px 14px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);white-space:nowrap}
+  .match .score.win-l{color:var(--gold)}
+  .match-foot{padding:14px 22px;color:var(--text-mute);font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-align:center}
+
+  /* STATS BAND */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .stat{background:var(--surface);padding:34px 28px}
+  .stat .n{font-family:'Anton',Impact,sans-serif;font-size:62px;line-height:1}
+  .stat .n .u{color:var(--gold);font-size:30px;margin-left:3px}
+  .stat .l{margin-top:8px;color:var(--text-dim);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+
+  /* CTA */
+  .cta{background:radial-gradient(80% 130% at 0% 0%,rgba(245,197,24,.10),transparent 52%),var(--bg-soft);border-top:1px solid var(--line-soft);padding:92px 0}
+  .cta-inner{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center}
+  .cta h3{font-size:clamp(38px,4.8vw,60px);margin:0 0 14px}
+  .cta h3 .gold{color:var(--gold)}
+  .cta p{color:var(--text-dim);max-width:48ch;line-height:1.65}
+  .form{display:flex;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px}
+  .form input{flex:1;background:transparent;border:0;outline:none;color:var(--text);font-family:inherit;font-size:15px;padding:13px 18px}
+  .form input::placeholder{color:var(--text-mute)}
+  .form button{padding:13px 22px;border-radius:999px;background:linear-gradient(145deg,var(--gold),#e6b000);color:#1a1205;font-weight:700}
+
+  /* FOOTER */
+  footer{padding:50px 0;border-top:1px solid var(--line-soft);color:var(--text-mute);font-size:13px}
+  .foot-inner{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+  .foot-links{display:flex;gap:24px}
+  .foot-links a:hover{color:var(--text)}
+  .foot-note{margin-top:18px;font-size:11px;color:var(--text-mute);line-height:1.6;max-width:80ch}
+
+  /* REVEAL */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* RESPONSIVE */
+  @media (max-width:1000px){
+    .hero-grid{grid-template-columns:1fr;gap:40px}
+    .hero-visual{max-width:480px}
+    .squad{grid-template-columns:repeat(3,1fr)}
+    .live-grid{grid-template-columns:1fr}
+    .nav-links{display:none}
+    section.block{padding:68px 0}
+  }
+  @media (max-width:680px){
+    .three{grid-template-columns:1fr;gap:16px}
+    .goat{aspect-ratio:3/3.4}
+    .squad{grid-template-columns:repeat(2,1fr)}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .cta-inner{grid-template-columns:1fr}
+    .hero-meta{gap:22px}
+    .nav-cta .btn-ghost{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13"/></svg>
+      </span>
+      <span>World Cup 26<small>The Stars Edition</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#big-three">The Big Three</a>
+      <a href="#stars">Stars</a>
+      <a href="#live">Live Race</a>
+      <a href="#join">Newsletter</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="#live">Live Race</a>
+      <a class="btn btn-primary" href="#big-three">Meet the Legends
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow reveal">FIFA World Cup 2026 · <span class="live"><span class="dot"></span> Tournament Live</span></span>
+      <h1 class="display reveal">
+        The<br>
+        <span class="outline">Greats of</span><br>
+        <span class="gold">2026.</span>
+      </h1>
+      <p class="lead reveal">Three icons chasing one last crown. A new generation hunting their first. This is the story of the players defining football's biggest stage — across the USA, Canada and Mexico.</p>
+      <div class="hero-actions reveal">
+        <a href="#big-three" class="btn btn-primary">Meet the Legends
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#live" class="btn btn-ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          Golden Boot Race
+        </a>
+      </div>
+      <div class="hero-meta reveal">
+        <div class="m"><strong>48</strong><span>Nations</span></div>
+        <div class="m"><strong>104</strong><span>Matches</span></div>
+        <div class="m"><strong><span class="g">10</span></strong><span>Legends featured</span></div>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal" aria-label="Featured star of the tournament">
+      <div class="photo" role="img" aria-label="A footballer in action under stadium lights"></div>
+      <span class="badge">★ Tournament Headliner</span>
+      <div class="cap">
+        <div class="num display">7</div>
+        <div class="nm display">Cristiano Ronaldo</div>
+        <div class="ps">Portugal · Forward · Captain</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOSTS -->
+<div class="hosts">
+  <div class="container hosts-inner">
+    <span class="lbl">Hosted across</span>
+    <div class="flags">
+      <span class="host"><img src="https://flagcdn.com/w80/us.png" alt="" /> United States</span>
+      <span class="host"><img src="https://flagcdn.com/w80/ca.png" alt="" /> Canada</span>
+      <span class="host"><img src="https://flagcdn.com/w80/mx.png" alt="" /> Mexico</span>
+      <span class="host" style="color:var(--text-mute)">· 16 host cities · 11 Jun – 19 Jul 2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- BIG THREE -->
+<section id="big-three" class="block">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--gold)"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm0 3h14v2H5v-2z"/></svg> The Immortals</span>
+        <h2 class="display reveal">The Big <span class="gold">Three</span></h2>
+      </div>
+      <p class="sub reveal">Ronaldo. Messi. Neymar. Three names that shaped a generation, each writing what may be their final World Cup chapter. There has never been a stage like this for legends to take their bow.</p>
+    </div>
+
+    <div class="three">
+      <article class="goat reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=900&auto=format&fit=crop')"></div>
+        <div class="rank display">1
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--gold)" style="filter:drop-shadow(0 2px 8px rgba(245,197,24,.5))"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z"/></svg>
+        </div>
+        <div class="info">
+          <div class="flag"><img src="https://flagcdn.com/w80/pt.png" alt="" /><span>Portugal</span></div>
+          <div class="nm">Cristiano<br>Ronaldo</div>
+          <div class="meta"><span class="kit">7</span><span>Forward</span><span>· 5× Ballon d'Or</span></div>
+        </div>
+      </article>
+
+      <article class="goat reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=900&auto=format&fit=crop')"></div>
+        <div class="rank display">2
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--gold)" style="filter:drop-shadow(0 2px 8px rgba(245,197,24,.5))"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z"/></svg>
+        </div>
+        <div class="info">
+          <div class="flag"><img src="https://flagcdn.com/w80/ar.png" alt="" /><span>Argentina</span></div>
+          <div class="nm">Lionel<br>Messi</div>
+          <div class="meta"><span class="kit">10</span><span>Forward</span><span>· 8× Ballon d'Or</span></div>
+        </div>
+      </article>
+
+      <article class="goat reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=900&auto=format&fit=crop')"></div>
+        <div class="rank display">3
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--gold)" style="filter:drop-shadow(0 2px 8px rgba(245,197,24,.5))"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z"/></svg>
+        </div>
+        <div class="info">
+          <div class="flag"><img src="https://flagcdn.com/w80/br.png" alt="" /><span>Brazil</span></div>
+          <div class="nm">Neymar<br>Jr</div>
+          <div class="meta"><span class="kit">10</span><span>Forward</span><span>· Brazil's talisman</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- STARS -->
+<section id="stars" class="block" style="padding-top:8px">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><span style="width:7px;height:7px;border-radius:50%;background:var(--gold);display:inline-block"></span> The New Wave</span>
+        <h2 class="display reveal">Stars to <span class="gold">Watch</span></h2>
+      </div>
+      <p class="sub reveal">Behind the icons, a generation ready to inherit the throne — the fastest, the youngest, the most electric talents the game has ever produced.</p>
+    </div>
+
+    <div class="squad">
+      <article class="pcard reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800&auto=format&fit=crop')"></div>
+        <span class="pos">Forward</span><span class="kit display">10</span>
+        <div class="info"><div class="flag"><img src="https://flagcdn.com/w80/fr.png" alt=""/><span>France</span></div><div class="nm">Kylian<br>Mbappé</div></div>
+      </article>
+      <article class="pcard reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=800&auto=format&fit=crop')"></div>
+        <span class="pos">Midfielder</span><span class="kit display">22</span>
+        <div class="info"><div class="flag"><img src="https://flagcdn.com/w80/gb-eng.png" alt=""/><span>England</span></div><div class="nm">Jude<br>Bellingham</div></div>
+      </article>
+      <article class="pcard reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800&auto=format&fit=crop')"></div>
+        <span class="pos">Winger</span><span class="kit display">19</span>
+        <div class="info"><div class="flag"><img src="https://flagcdn.com/w80/es.png" alt=""/><span>Spain</span></div><div class="nm">Lamine<br>Yamal</div></div>
+      </article>
+      <article class="pcard reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=800&auto=format&fit=crop')"></div>
+        <span class="pos">Midfielder</span><span class="kit display">10</span>
+        <div class="info"><div class="flag"><img src="https://flagcdn.com/w80/de.png" alt=""/><span>Germany</span></div><div class="nm">Jamal<br>Musiala</div></div>
+      </article>
+      <article class="pcard reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&auto=format&fit=crop')"></div>
+        <span class="pos">Forward</span><span class="kit display">9</span>
+        <div class="info"><div class="flag"><img src="https://flagcdn.com/w80/no.png" alt=""/><span>Norway</span></div><div class="nm">Erling<br>Haaland</div></div>
+      </article>
+      <article class="pcard reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1602522440197-c2f8bf2dc0c1?w=800&auto=format&fit=crop')"></div>
+        <span class="pos">Winger</span><span class="kit display">7</span>
+        <div class="info"><div class="flag"><img src="https://flagcdn.com/w80/br.png" alt=""/><span>Brazil</span></div><div class="nm">Vinícius<br>Júnior</div></div>
+      </article>
+      <article class="pcard reveal">
+        <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1486286701208-1d58e9338013?w=800&auto=format&fit=crop')"></div>
+        <span class="pos">Midfielder</span><span class="kit display">17</span>
+        <div class="info"><div class="flag"><img src="https://flagcdn.com/w80/be.png" alt=""/><span>Belgium</span></div><div class="nm">Kevin<br>De Bruyne</div></div>
+      </article>
+      <article class="pcard reveal" style="display:grid;place-items:center;background:linear-gradient(160deg,#16120a,#0d0f12);border-style:dashed">
+        <div style="text-align:center;padding:20px">
+          <div style="font-family:'Anton',sans-serif;font-size:40px;color:var(--gold)">+38</div>
+          <div style="color:var(--text-dim);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-top:6px">More nations<br>chasing glory</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DATA -->
+<section id="live" class="live-wrap">
+  <div class="container" style="padding-top:88px;padding-bottom:88px">
+    <div class="live-head">
+      <div>
+        <span class="eyebrow"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.4"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg> Updates automatically</span>
+        <h2 class="display" style="font-size:clamp(36px,5vw,64px);margin:14px 0 0">The Golden Boot <span class="gold">Race</span></h2>
+      </div>
+      <div class="live-tag" id="liveStatus"><span class="stat-dot"></span> <span id="liveStatusText">Connecting to live feed…</span></div>
+    </div>
+
+    <div class="live-grid">
+      <div class="panel">
+        <div class="panel-h"><h3>Top Scorers</h3><span class="hint">Goals · World Cup 2026</span></div>
+        <div id="scorers"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h3>Latest Results</h3><span class="hint">Final scores</span></div>
+        <div id="matches"></div>
+        <div class="match-foot" id="matchFoot">Live from football-data.org</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<section class="block" style="padding:80px 0">
+  <div class="container">
+    <div class="stats">
+      <div class="stat reveal"><div class="n">48<span class="u">/48</span></div><div class="l">Qualified nations</div></div>
+      <div class="stat reveal"><div class="n">16</div><div class="l">Host cities</div></div>
+      <div class="stat reveal"><div class="n">104</div><div class="l">Total matches</div></div>
+      <div class="stat reveal"><div class="n">6.5<span class="u">M</span></div><div class="l">Tickets available</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="join" class="cta">
+  <div class="container cta-inner">
+    <div class="reveal">
+      <h3 class="display">Never miss a <span class="gold">moment.</span></h3>
+      <p>Goals, upsets, and golden-boot updates delivered every matchday. Follow the legends and the new wave all the way to the final in New Jersey.</p>
+    </div>
+    <form class="form reveal" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Subscribed ✓';">
+      <input type="email" required placeholder="you@email.com" aria-label="Email address" />
+      <button type="submit">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="foot-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13"/></svg></span> World Cup 26</div>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="#big-three">Legends</a><a href="#live">Live Race</a><a href="#join">Newsletter</a>
+      </nav>
+    </div>
+    <p class="foot-note">Unofficial fan project. Live match data provided by football-data.org. Player imagery is illustrative. Not affiliated with FIFA. © 2026 World Cup 26 — The Stars Edition.</p>
+  </div>
+</footer>
+
+<script>
+  // ---- Scroll reveal ----
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // ---- Live data (Golden Boot + results) ----
+  // Falls back to illustrative sample data until the /api/worldcup function is live.
+  const SAMPLE = {
+    scorers: [
+      {name:"Kylian Mbappé", team:"France", cc:"fr", goals:6},
+      {name:"Erling Haaland", team:"Norway", cc:"no", goals:5},
+      {name:"Lionel Messi", team:"Argentina", cc:"ar", goals:4},
+      {name:"Harry Kane", team:"England", cc:"gb-eng", goals:4},
+      {name:"Vinícius Júnior", team:"Brazil", cc:"br", goals:3},
+      {name:"Cristiano Ronaldo", team:"Portugal", cc:"pt", goals:3}
+    ],
+    matches: [
+      {home:"Argentina", hc:"ar", away:"Brazil", ac:"br", hs:2, as:1},
+      {home:"France", fc:"fr", hc:"fr", away:"Germany", ac:"de", hs:3, as:2},
+      {home:"Spain", hc:"es", away:"Portugal", ac:"pt", hs:1, as:1},
+      {home:"England", hc:"gb-eng", away:"Norway", ac:"no", hs:2, as:0}
+    ]
+  };
+
+  const flag = cc => `https://flagcdn.com/w40/${cc}.png`;
+
+  function renderScorers(list){
+    const el = document.getElementById('scorers');
+    el.innerHTML = list.slice(0,6).map((s,i)=>`
+      <div class="scorer">
+        <div class="pos${i===0?' top':''}">${i+1}</div>
+        <div class="ava" style="background-image:url('${flag(s.cc)}');background-size:cover"></div>
+        <div class="who"><div class="n">${s.name}</div><div class="t"><img src="${flag(s.cc)}" alt=""/> ${s.team}</div></div>
+        <div class="goals"><b>${s.goals}</b><span>Goals</span></div>
+      </div>`).join('');
+  }
+  function renderMatches(list){
+    const el = document.getElementById('matches');
+    el.innerHTML = list.slice(0,4).map(m=>{
+      const hWin = m.hs>m.as, aWin = m.as>m.hs;
+      return `<div class="match">
+        <div class="side"><img src="${flag(m.hc)}" alt=""/><span class="nm">${m.home}</span></div>
+        <div class="score">${m.hs}<span style="color:var(--text-mute);margin:0 6px">–</span>${m.as}</div>
+        <div class="side r"><img src="${flag(m.ac)}" alt=""/><span class="nm">${m.away}</span></div>
+      </div>`;
+    }).join('');
+  }
+  function setStatus(mode){
+    const tag = document.getElementById('liveStatus');
+    const txt = document.getElementById('liveStatusText');
+    tag.classList.remove('is-live','is-sample');
+    if(mode==='live'){ tag.classList.add('is-live'); txt.textContent='Live · auto-updating'; document.getElementById('matchFoot').textContent='Live data · football-data.org'; }
+    else { tag.classList.add('is-sample'); txt.textContent='Preview data (deploy to go live)'; document.getElementById('matchFoot').textContent='Sample data — connect the API to go live'; }
+  }
+
+  async function loadLive(){
+    // show sample immediately so the section is never empty
+    renderScorers(SAMPLE.scorers);
+    renderMatches(SAMPLE.matches);
+    setStatus('sample');
+    try{
+      const res = await fetch('/api/worldcup', {headers:{'accept':'application/json'}});
+      if(!res.ok) return;                 // not deployed yet -> keep sample
+      const data = await res.json();
+      if(data && Array.isArray(data.scorers) && data.scorers.length){
+        renderScorers(data.scorers);
+        if(Array.isArray(data.matches) && data.matches.length) renderMatches(data.matches);
+        setStatus('live');
+      }
+    }catch(_){ /* offline / local file -> keep sample */ }
+  }
+  loadLive();
+</script>
+</body>
+</html>

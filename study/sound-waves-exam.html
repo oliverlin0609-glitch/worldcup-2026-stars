@@ -1,0 +1,550 @@
+<title>聲波模擬考卷</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --paper:#fbfbf9; --ground:#e8e9e4; --ink:#1b1b1a; --muted:#6a6b66; --rule:#cfd0c9;
+    --pen:#b3261e; --pen-soft:#fae7e5; --ok:#2f6b46; --ok-soft:#e2f0e7;
+    --mark:#1d4ed8;
+    --shadow:0 1px 2px rgba(0,0,0,.05), 0 12px 30px rgba(27,27,26,.09);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1a1b1e; --ground:#0f1012; --ink:#eceae4; --muted:#9a9b95; --rule:#34363a;
+      --pen:#f0837a; --pen-soft:#3a1d1b; --ok:#6fc496; --ok-soft:#173026;
+      --mark:#7aa2f7;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 34px rgba(0,0,0,.4);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1a1b1e; --ground:#0f1012; --ink:#eceae4; --muted:#9a9b95; --rule:#34363a;
+    --pen:#f0837a; --pen-soft:#3a1d1b; --ok:#6fc496; --ok-soft:#173026;
+    --mark:#7aa2f7;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 34px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size:16px; line-height:1.7;
+  }
+  .sheet{
+    max-width:760px; margin:0 auto; background:var(--paper);
+    border:1px solid var(--rule); box-shadow:var(--shadow);
+    padding-inline:clamp(16px,4vw,44px); padding-block:28px 120px;
+  }
+  .mono{ font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums; }
+
+  /* ---- 卷頭 ---- */
+  .head{ border-bottom:2px solid var(--ink); padding-bottom:14px; }
+  .school{ font-size:12px; letter-spacing:.3em; color:var(--muted); margin:0 0 6px; }
+  h1{ font-family:"Noto Serif TC",serif; font-size:clamp(22px,5.4vw,30px); font-weight:700; letter-spacing:.06em; margin:0; text-wrap:balance; }
+  .meta{ display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:12px; font-size:13.5px; color:var(--muted); }
+  .meta b{ color:var(--ink); font-weight:600; }
+  .notice{ margin:14px 0 0; font-size:13.5px; color:var(--muted); border-left:3px solid var(--rule); padding-left:12px; }
+  .notice b{ color:var(--ink); }
+
+  /* ---- 計時列 ---- */
+  .timerbar{
+    position:sticky; top:env(safe-area-inset-top, 0px); z-index:9;
+    background:var(--paper); border-bottom:1px solid var(--rule);
+    margin-inline:calc(clamp(16px,4vw,44px) * -1); padding:10px clamp(16px,4vw,44px);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  #clock{ font-family:"IBM Plex Mono",monospace; font-size:20px; font-weight:600; letter-spacing:.04em; }
+  #clock.low{ color:var(--pen); }
+  .timerbar .right{ display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); }
+  .tbtn{ font:inherit; font-size:13px; cursor:pointer; background:transparent; color:var(--muted); border:1px solid var(--rule); border-radius:6px; padding:4px 10px; }
+  .tbtn:hover{ border-color:var(--ink); color:var(--ink); }
+
+  /* ---- 題目 ---- */
+  .section-label{ font-family:"Noto Serif TC",serif; font-weight:700; font-size:16px; margin:26px 0 4px; letter-spacing:.05em; }
+  .section-label span{ font-weight:400; font-size:13.5px; color:var(--muted); letter-spacing:0; }
+  .q{ padding:18px 0 16px; border-bottom:1px dotted var(--rule); scroll-margin-top:72px; }
+  .q-head{ display:flex; gap:10px; align-items:baseline; }
+  .q-no{ font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:15px; min-width:2.4em; color:var(--ink); }
+  .q-body{ flex:1; }
+  .stem{ font-family:"Noto Serif TC",serif; font-size:17px; line-height:1.85; margin:0; text-wrap:pretty; }
+  .stem .fx{ font-family:"IBM Plex Mono",monospace; }
+  .group-note{ display:block; font-size:13px; color:var(--muted); margin:0 0 8px; letter-spacing:.04em; }
+  figure{ margin:12px 0 4px; }
+  figure svg{ display:block; width:100%; max-width:100%; height:auto; color:var(--ink); }
+  figcaption{ font-size:12.5px; color:var(--muted); text-align:center; margin-top:4px; }
+
+  .opts{ list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .opt{ display:flex; gap:10px; align-items:flex-start; cursor:pointer; padding:5px 8px; border-radius:8px; border:1px solid transparent; }
+  .opt:hover{ background:var(--ground); }
+  .opt input{ position:absolute; opacity:0; width:0; height:0; }
+  .bub{
+    flex:none; width:25px; height:25px; border-radius:50%; border:1.6px solid var(--muted);
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted);
+    display:grid; place-items:center; margin-top:1px; transition:background .12s, color .12s, border-color .12s;
+  }
+  .opt input:checked + .bub{ background:var(--mark); border-color:var(--mark); color:#fff; }
+  .opt input:focus-visible + .bub{ outline:2px solid var(--mark); outline-offset:2px; }
+  .opt .txt{ flex:1; line-height:1.65; }
+
+  /* ---- 批改後 ---- */
+  .graded .opt{ cursor:default; }
+  .opt.is-ans{ background:var(--ok-soft); border-color:var(--ok); }
+  .opt.is-ans .bub{ background:var(--ok); border-color:var(--ok); color:#fff; }
+  .opt.is-bad{ background:var(--pen-soft); border-color:var(--pen); }
+  .opt.is-bad .bub{ background:var(--pen); border-color:var(--pen); color:#fff; }
+  .verdict{ font-family:"IBM Plex Mono",monospace; font-size:20px; font-weight:600; float:right; }
+  .verdict.y{ color:var(--ok); } .verdict.n{ color:var(--pen); }
+  .sol{ margin-top:12px; border-top:1px solid var(--rule); padding-top:10px; }
+  .sol h4{ font-size:12px; letter-spacing:.16em; margin:0 0 4px; color:var(--pen); font-family:"IBM Plex Mono",monospace; }
+  .sol p{ margin:0; font-size:15px; line-height:1.75; color:var(--ink); }
+  .sol .calc{ display:block; white-space:pre-line; font-family:"IBM Plex Mono",monospace; font-size:14.5px; background:var(--ground); border-radius:6px; padding:8px 10px; margin-top:8px; overflow-x:auto; }
+
+  /* ---- 成績單 ---- */
+  #report{ border:2px solid var(--ink); padding:20px 18px; margin:22px 0 8px; }
+  #report .top{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  #report .score{ font-family:"IBM Plex Mono",monospace; font-size:52px; font-weight:600; line-height:1; color:var(--pen); }
+  #report .score small{ font-size:18px; color:var(--muted); }
+  #report .used{ font-size:13px; color:var(--muted); }
+  #report .say{ font-family:"Noto Serif TC",serif; font-size:16px; margin:14px 0 16px; }
+  .rows{ display:grid; gap:6px; }
+  .row{ display:flex; justify-content:space-between; gap:12px; font-size:14px; border-bottom:1px dotted var(--rule); padding-bottom:5px; }
+  .row .sc{ font-family:"IBM Plex Mono",monospace; font-weight:600; }
+  .jump{ margin-top:16px; font-size:14px; }
+  .jump a{ color:var(--mark); text-decoration:none; border-bottom:1px solid currentColor; margin-right:12px; font-family:"IBM Plex Mono",monospace; }
+
+  /* ---- 答案卡 ---- */
+  .cardbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:10;
+    background:var(--paper); border-top:1px solid var(--rule);
+    padding:10px clamp(12px,4vw,20px); padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+    box-shadow:0 -6px 20px rgba(0,0,0,.08);
+  }
+  .cardbar .inner{ max-width:760px; margin:0 auto; display:flex; align-items:center; gap:12px; }
+  .cells{ display:flex; flex-wrap:wrap; gap:4px; flex:1; }
+  .cell{
+    width:23px; height:23px; border-radius:5px; border:1px solid var(--rule); background:transparent;
+    font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted); cursor:pointer; padding:0;
+  }
+  .cell.done{ background:var(--mark); border-color:var(--mark); color:#fff; }
+  .cell.right{ background:var(--ok); border-color:var(--ok); color:#fff; }
+  .cell.bad{ background:var(--pen); border-color:var(--pen); color:#fff; }
+  .submit{
+    font:inherit; font-weight:700; cursor:pointer; flex:none;
+    background:var(--pen); color:#fff; border:none; border-radius:9px; padding:11px 20px;
+  }
+  .submit:hover{ filter:brightness(1.08); }
+  .submit.done{ background:var(--ink); }
+  .count{ font-size:12px; color:var(--muted); white-space:nowrap; }
+
+  @media (max-width:520px){ .cells{ max-height:56px; overflow-y:auto; } }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; scroll-behavior:auto !important; } }
+  @media print{
+    .cardbar, .timerbar{ display:none; }
+    .sheet{ box-shadow:none; border:none; padding-block:0 0; }
+    .q{ break-inside:avoid; }
+  }
+</style>
+
+<div class="sheet">
+  <header class="head">
+    <p class="school mono">NATURAL SCIENCE · PHYSICS</p>
+    <h1>理化科 聲波單元 模擬測驗</h1>
+    <div class="meta">
+      <span>範圍:<b>聲音的產生與傳播、聲音的三要素、聲波的計算與應用</b></span>
+      <span>題數:<b>25 題</b></span>
+      <span>配分:<b>每題 4 分,共 100 分</b></span>
+      <span>時間:<b>45 分鐘</b></span>
+    </div>
+    <p class="notice">
+      <b>作答說明:</b>單一選擇題,每題只有一個最適當的答案。可隨時回頭修改答案,全部作答完畢後按下方「交卷」批改。
+      計算題若未特別說明,空氣中聲速以 <span class="mono">340 m/s</span> 計。
+    </p>
+  </header>
+
+  <div class="timerbar">
+    <span id="clock" class="mono">45:00</span>
+    <span class="right">
+      <span id="pstate">作答中</span>
+      <button class="tbtn" id="pause">暫停</button>
+    </span>
+  </div>
+
+  <div id="report" hidden></div>
+  <main id="paper"></main>
+</div>
+
+<div class="cardbar">
+  <div class="inner">
+    <div class="cells" id="cells"></div>
+    <span class="count" id="count">0 / 25</span>
+    <button class="submit" id="submit">交卷</button>
+  </div>
+</div>
+
+<script>
+/* ---------- 波形圖產生器 ---------- */
+function wave(cycles, amp, label){
+  const W = 200, H = 64, mid = H / 2;
+  let d = "";
+  for (let x = 0; x <= W; x += 2){
+    const y = mid - Math.sin(x / W * Math.PI * 2 * cycles) * amp;
+    d += (x === 0 ? "M" : "L") + x + " " + y.toFixed(1) + " ";
+  }
+  return `<svg viewBox="0 0 ${W + 34} ${H + 14}" role="img" aria-label="${label} 的波形">
+    <text x="0" y="${mid + 12}" font-size="13" font-family="IBM Plex Mono, monospace" fill="currentColor">${label}</text>
+    <line x1="26" y1="${mid + 7}" x2="${W + 30}" y2="${mid + 7}" stroke="currentColor" stroke-width="0.6" opacity="0.35"/>
+    <g transform="translate(26,7)"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></g>
+  </svg>`;
+}
+const FIG_AB = `<figure>${wave(3, 22, "甲")}${wave(3, 11, "乙")}<figcaption>圖(一) 甲、乙兩聲音在相同示波器設定下的波形</figcaption></figure>`;
+const FIG_CD = `<figure>${wave(2, 18, "丙")}${wave(4, 18, "丁")}<figcaption>圖(二) 丙、丁兩聲音在相同示波器設定下的波形</figcaption></figure>`;
+
+/* ---------- 題庫 ---------- */
+const Q = [
+{ tag:"產生與傳播",
+  stem:"關於聲音的產生與傳播,下列敘述何者<b>正確</b>?",
+  opts:["只要物體振動,人一定聽得見聲音","一切正在發聲的物體都在振動","聲音傳播時,介質會隨著聲音一起被帶到遠方","聲音在真空中的傳播速度為 340 m/s"],
+  a:1,
+  why:"發聲必伴隨振動,但人不一定聽得見(如超聲波、次聲波,或響度太小)。介質只在原位附近來回振動,向外傳遞的是能量而非介質本身;真空中則根本不能傳聲。" },
+
+{ tag:"產生與傳播",
+  stem:"甲、乙、丙三種介質中的聲速分別約為 <span class=\"fx\">340 m/s</span>、<span class=\"fx\">1500 m/s</span>、<span class=\"fx\">5000 m/s</span>,則甲、乙、丙最可能依序為:",
+  opts:["空氣、水、鋼","水、空氣、鋼","鋼、水、空氣","空氣、鋼、水"],
+  a:0,
+  why:"聲速大小為固體 &gt; 液體 &gt; 氣體,因粒子排列愈緊密,振動傳遞愈快。340 對應空氣、1500 對應水、5000 對應鋼。" },
+
+{ tag:"實驗探究",
+  stem:"將正在響鈴的電鈴密封於玻璃鐘罩內,逐漸抽出罩內空氣,發現<b>仍看得到小錘敲擊</b>,但鈴聲愈來愈小。由此實驗可合理推論:",
+  opts:["電鈴在低壓下會停止振動","抽氣會使聲音的頻率降低","若罩內成為真空,將完全聽不到鈴聲","玻璃罩能完全吸收所有聲音"],
+  a:2,
+  why:"看得到敲擊表示電鈴仍在振動,聲音變小只可能來自傳播介質減少。實際無法抽成完全真空,因此結論須用「推論」而得:真空不能傳聲。" },
+
+{ tag:"實驗探究",
+  stem:"敲擊音叉後,將音叉末端輕觸水面,水花四濺。此實驗最主要用來說明:",
+  opts:["發聲的物體正在振動","聲音可以在水中傳播","音叉的音調比水高","聲音傳播需要時間"],
+  a:0,
+  why:"音叉的振動幅度太小不易觀察,藉由水花把微小振動「放大」成看得見的現象,這種方法稱為轉換法。" },
+
+{ tag:"三要素",
+  stem:FIG_AB + "<span class=\"group-note mono\">第 5、6 題為題組,請依圖(一)作答</span>甲、乙兩聲音相比,下列何者正確?",
+  opts:["甲的音調較高","甲的響度較大","乙的音調較低","兩者的音色不同"],
+  a:1,
+  why:"圖中甲、乙在相同時間內的波數相同 → 頻率相同 → 音調相同;但甲的振幅較大 → 響度較大。波形形狀相同,音色亦相同。" },
+
+{ tag:"三要素",
+  stem:"承上題,若要使乙的波形變得與甲相同,可採取的作法是:",
+  opts:["提高發聲體的振動頻率","加大敲擊的力道使振幅變大","改用不同材質的發聲體","讓聽者站得更遠一些"],
+  a:1,
+  why:"乙與甲只差在振幅(響度)。加大力道 → 振幅變大 → 響度變大。改變頻率會動到音調,換材質會動到音色,都不符合。" },
+
+{ tag:"三要素",
+  stem:FIG_CD + "<span class=\"group-note mono\">第 7、8 題為題組,請依圖(二)作答</span>丙、丁兩聲音相比,下列敘述何者正確?",
+  opts:["丙的音調較高、響度較大","丁的音調較高、響度相同","丁的波長較長","兩者頻率相同,響度不同"],
+  a:1,
+  why:"相同時間內丁的波數較多 → 頻率較高 → 音調較高;兩者振幅相同 → 響度相同。頻率高則波長短,故丁的波長較短。" },
+
+{ tag:"三要素",
+  stem:"承上題,若丙的頻率為 <span class=\"fx\">256 Hz</span>,則丁的頻率為多少?",
+  opts:["128 Hz","256 Hz","512 Hz","1024 Hz"],
+  a:2,
+  why:"在相同的觀測時間內,丁的波數是丙的 2 倍 → 頻率為 2 倍 → <span class=\"fx\">256 × 2 = 512 Hz</span>。" },
+
+{ tag:"三要素",
+  stem:"下列「」中的字,何者是在描述聲音的<b>音調</b>?",
+  opts:["請你說話「大」聲一點","這個音太「高」了,我唱不上去","她總是輕聲「細」語","電視的音量開得好「小」"],
+  a:1,
+  why:"音調由頻率決定,唱不上去的「高」指的是頻率高。大聲、細語、音量小都是在描述響度(振幅)。" },
+
+{ tag:"三要素",
+  stem:"「聞其聲而知其人」,我們能在電話中辨認出是誰在說話,主要依據的是聲音的:",
+  opts:["音調","響度","音色","傳播速度"],
+  a:2,
+  why:"每個人的聲帶與口腔共鳴結構不同,振動的波形(音色)不同,即使音調與響度相同也能分辨。" },
+
+{ tag:"計算",
+  stem:"空氣溫度為 25 °C 時聲速約 <span class=\"fx\">346 m/s</span>。某人在距離峭壁 <span class=\"fx\">865 m</span> 處鳴槍,約經過多久才會聽到回聲?",
+  opts:["2.5 秒","5 秒","10 秒","無法計算"],
+  a:1,
+  why:"聲音必須來回一趟:<span class=\"calc\">t = 2 × 865 ÷ 346 = 1730 ÷ 346 = 5 (s)</span>回聲題若忘了乘 2,會誤選 2.5 秒。" },
+
+{ tag:"計算",
+  stem:"人耳要能把回聲與原音分辨開來,兩者至少需相隔 <span class=\"fx\">0.1 s</span>。則發聲者與障礙物至少須相距多少?",
+  opts:["17 m","34 m","68 m","340 m"],
+  a:0,
+  why:"<span class=\"calc\">來回距離 = 340 × 0.1 = 34 m → 單程 = 34 ÷ 2 = 17 m</span>這也是小房間聽不到回聲的原因。" },
+
+{ tag:"計算",
+  stem:"利用超聲波測量海深,由船底發射後經 <span class=\"fx\">4 s</span> 收到海底反射回來的訊號。若海水中聲速為 <span class=\"fx\">1500 m/s</span>,則該處海深為:",
+  opts:["375 m","1500 m","3000 m","6000 m"],
+  a:2,
+  why:"<span class=\"calc\">深度 = 1500 × 4 ÷ 2 = 3000 (m)</span>注意超聲波不能用於測量地球與月球的距離——真空不傳聲,該任務要用雷射。" },
+
+{ tag:"計算",
+  stem:"某超聲波的頻率為 <span class=\"fx\">5 × 10⁴ Hz</span>,在水中的波速為 <span class=\"fx\">1500 m/s</span>,其波長為:",
+  opts:["0.003 m","0.03 m","0.3 m","3 m"],
+  a:1,
+  why:"<span class=\"calc\">λ = v ÷ f = 1500 ÷ (5 × 10⁴) = 0.03 (m) = 3 cm</span>" },
+
+{ tag:"計算",
+  stem:"甲、乙兩人分別站在一條長 <span class=\"fx\">1020 m</span> 的鋼軌兩端。甲敲擊鋼軌一次,乙先後聽到兩次聲響,兩次相隔約多久?(空氣中聲速 340 m/s,鋼中聲速 5100 m/s)",
+  opts:["0.2 秒","2.8 秒","3 秒","3.2 秒"],
+  a:1,
+  why:"<span class=\"calc\">經空氣:1020 ÷ 340 = 3 (s)\n經鋼軌:1020 ÷ 5100 = 0.2 (s)\n時間差 = 3 − 0.2 = 2.8 (s)</span>先聽到的是經鋼軌傳來的聲音,因為固體中聲速較快。" },
+
+{ tag:"計算",
+  stem:"一列火車以 <span class=\"fx\">20 m/s</span> 的速度朝隧道直線前進,在某處鳴笛後 <span class=\"fx\">2 s</span> 司機聽到回聲。則<b>鳴笛時</b>火車距隧道口多遠?",
+  opts:["320 m","340 m","360 m","680 m"],
+  a:2,
+  why:"設鳴笛時距離為 <span class=\"fx\">d</span>。這 2 秒內火車前進 <span class=\"fx\">20 × 2 = 40 m</span>,聲音走的總路程為去程 d 加回程 (d − 40):<span class=\"calc\">d + (d − 40) = 340 × 2 = 680\n2d = 720 → d = 360 (m)</span>" },
+
+{ tag:"波的性質",
+  stem:"聲波由空氣傳入水中時,下列物理量的變化何者正確?",
+  opts:["頻率不變、波速變大、波長變長","頻率變大、波速變大、波長不變","頻率不變、波速變小、波長變短","三者皆不改變"],
+  a:0,
+  why:"頻率由聲源決定,換介質不變;水中聲速較大,由 <span class=\"fx\">v = f λ</span>,在 f 固定下 v 變大則 λ 變長。" },
+
+{ tag:"波的性質",
+  stem:"關於聲波的敘述,下列何者<b>錯誤</b>?",
+  opts:["聲波是介質分子疏密相間傳遞的縱波","聲波傳遞的是能量,不是介質本身","聲波的頻率愈高,在同一介質中傳播愈快","聲波遇到障礙物可以反射,形成回聲"],
+  a:2,
+  why:"在同一介質中,聲速只與介質種類與溫度有關,與頻率、響度無關。若高音傳得比低音快,遠處聽音樂就會荒腔走板。" },
+
+{ tag:"聽覺與超聲波",
+  stem:"關於超聲波的敘述,下列何者<b>錯誤</b>?",
+  opts:["頻率高於 20000 Hz,人耳聽不見","可用於產檢、洗淨眼鏡與探測海深","可以在真空中傳播,速度為光速","蝙蝠利用它進行回聲定位"],
+  a:2,
+  why:"超聲波仍然是聲波,一樣需要介質,也一樣以該介質的聲速傳播。以光速在真空中傳播的是電磁波(如無線電波、X 光)。" },
+
+{ tag:"共鳴",
+  stem:"兩支頻率相同的音叉相鄰放置,敲響其中一支後另一支也發聲。若在其中一支的叉臂上套一個橡皮圈後重做實驗,則:",
+  opts:["共鳴更明顯,聲音更大","不再產生共鳴,因為兩者固有頻率已不同","另一支音叉會發出更高的音調","結果完全不受影響"],
+  a:1,
+  why:"共鳴的條件是兩者的頻率相同。套上橡皮圈改變了質量與振動狀態,固有頻率改變,共鳴條件被破壞。" },
+
+{ tag:"生活應用",
+  stem:"取數個相同的玻璃瓶,裝入高度不同的水。若用<b>棒子敲擊瓶身</b>,則水裝得最多的那一瓶所發出的聲音:",
+  opts:["音調最高,因為水最多","音調最低,因為振動的瓶與水整體質量最大","響度最大,音調不變","不會發出聲音"],
+  a:1,
+  why:"敲瓶身時振動的是「瓶子和水」,質量愈大愈不易振動 → 頻率低 → 音調低。若改為<b>對著瓶口吹氣</b>,振動的是瓶內空氣柱,水愈多空氣柱愈短 → 音調反而最高。這兩種情形的答案剛好相反,是最常見的陷阱。" },
+
+{ tag:"生活應用",
+  stem:"醫生使用聽診器聽診,其主要作用是:",
+  opts:["提高心音的音調,使聲音變尖細","減少聲音向四周散開,使傳入耳中的響度增大","改變心音的音色,以利辨識","加快聲音在空氣中的傳播速度"],
+  a:1,
+  why:"聽診器以管子把聲波侷限在管內傳遞,減少能量向四面八方擴散,使到達耳朵的響度增大;音調與音色皆未改變。" },
+
+{ tag:"生活應用",
+  stem:"下雪後的清晨,戶外聽起來格外安靜,主要原因是:",
+  opts:["低溫使聲音無法產生","蓬鬆的積雪表面多孔,吸收了大量聲波,反射減少","雪會使聲音的頻率降到 20 Hz 以下","低溫時聲音的傳播速度變為零"],
+  a:1,
+  why:"蓬鬆積雪與音樂廳的吸音材料原理相同:多孔結構把聲能轉換成內能而吸收,反射音減少,因此覺得安靜。溫度低時聲速確實略慢,但這不是變安靜的主因。" },
+
+{ tag:"噪音防治",
+  stem:"下列防治噪音的措施,何者屬於在<b>傳播過程中</b>減弱噪音?",
+  opts:["機車加裝消音器","高速公路旁設置隔音牆","工人配戴防噪音耳罩","禁止在醫院附近按喇叭"],
+  a:1,
+  why:"防治噪音有三個環節:在<b>聲源</b>處(消音器、禁按喇叭)、在<b>傳播途徑</b>中(隔音牆、種行道樹、關窗)、在<b>接收處</b>(耳罩、耳塞)。隔音牆屬於傳播途徑。" },
+
+{ tag:"噪音防治",
+  stem:"關於聲音強弱的單位「分貝(dB)」,下列敘述何者正確?",
+  opts:["0 dB 表示完全沒有聲音","分貝是用來表示聲音頻率高低的單位","0 dB 是剛能引起人耳聽覺的最小聲音,長期處於 90 dB 以上會損害聽力","分貝數愈大,表示聲音的音調愈高"],
+  a:2,
+  why:"分貝描述的是響度(聲音強弱),不是音調;0 dB 是人耳聽覺的下限而非無聲。頻率的單位是赫茲(Hz)。" }
+];
+
+const LET = ["A","B","C","D"];
+const TOTAL = Q.length, PER = 4, LIMIT = 45 * 60;
+const paper = document.getElementById("paper");
+const cells = document.getElementById("cells");
+const countEl = document.getElementById("count");
+const submitBtn = document.getElementById("submit");
+const clockEl = document.getElementById("clock");
+const pauseBtn = document.getElementById("pause");
+const pstate = document.getElementById("pstate");
+const report = document.getElementById("report");
+
+let ans = {};
+let graded = false;
+let left = LIMIT;
+let running = true;
+let tick = null;
+
+function sectionLabel(i){
+  if (i === 0) return `<p class="section-label">一、聲音的產生與傳播 <span>(第 1 ~ 4 題)</span></p>`;
+  if (i === 4) return `<p class="section-label">二、聲音的三要素與波形判讀 <span>(第 5 ~ 10 題)</span></p>`;
+  if (i === 10) return `<p class="section-label">三、聲波的計算 <span>(第 11 ~ 16 題)</span></p>`;
+  if (i === 16) return `<p class="section-label">四、聲波的性質與應用 <span>(第 17 ~ 25 題)</span></p>`;
+  return "";
+}
+
+function build(){
+  paper.innerHTML = Q.map((item, i) => `
+    ${sectionLabel(i)}
+    <article class="q" id="q${i}">
+      <div class="q-head">
+        <span class="q-no">${String(i + 1).padStart(2, "0")}.</span>
+        <div class="q-body">
+          <span class="verdict" id="v${i}"></span>
+          <p class="stem">${item.stem}</p>
+          <ul class="opts">
+            ${item.opts.map((o, k) => `
+              <li>
+                <label class="opt" id="o${i}-${k}">
+                  <input type="radio" name="q${i}" id="r${i}-${k}" value="${k}">
+                  <span class="bub">${LET[k]}</span>
+                  <span class="txt">${o}</span>
+                </label>
+              </li>`).join("")}
+          </ul>
+          <div class="sol" id="s${i}" hidden>
+            <h4>解析</h4>
+            <p>${item.why}</p>
+          </div>
+        </div>
+      </div>
+    </article>`).join("");
+
+  paper.querySelectorAll("input[type=radio]").forEach(r => {
+    r.addEventListener("change", e => {
+      if (graded) return;
+      const qi = parseInt(e.target.name.slice(1), 10);
+      ans[qi] = parseInt(e.target.value, 10);
+      refreshCard();
+      snap();
+    });
+  });
+
+  cells.innerHTML = Q.map((_, i) =>
+    `<button class="cell" data-i="${i}" title="第 ${i + 1} 題">${i + 1}</button>`).join("");
+  cells.querySelectorAll(".cell").forEach(b => {
+    b.addEventListener("click", () => {
+      document.getElementById("q" + b.dataset.i).scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+  });
+  refreshCard();
+}
+
+function refreshCard(){
+  const done = Object.keys(ans).length;
+  countEl.textContent = `${done} / ${TOTAL}`;
+  cells.querySelectorAll(".cell").forEach(b => {
+    const i = parseInt(b.dataset.i, 10);
+    b.classList.remove("done", "right", "bad");
+    if (graded) b.classList.add(ans[i] === Q[i].a ? "right" : "bad");
+    else if (i in ans) b.classList.add("done");
+  });
+}
+
+/* ---------- 計時 ---------- */
+function fmt(s){
+  const m = Math.floor(s / 60), r = s % 60;
+  return String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
+}
+function startClock(){
+  clearInterval(tick);
+  tick = setInterval(() => {
+    if (!running || graded) return;
+    left--;
+    clockEl.textContent = fmt(Math.max(0, left));
+    clockEl.classList.toggle("low", left <= 300);
+    if (left <= 0){ clearInterval(tick); grade(true); }
+  }, 1000);
+}
+pauseBtn.addEventListener("click", () => {
+  if (graded) return;
+  running = !running;
+  pauseBtn.textContent = running ? "暫停" : "繼續";
+  pstate.textContent = running ? "作答中" : "已暫停";
+});
+
+/* ---------- 交卷 ---------- */
+submitBtn.addEventListener("click", () => {
+  if (graded){ report.scrollIntoView({ behavior:"smooth", block:"start" }); return; }
+  const blank = TOTAL - Object.keys(ans).length;
+  if (blank > 0 && !confirm(`尚有 ${blank} 題未作答,確定要交卷嗎?`)) return;
+  grade(false);
+});
+
+function grade(auto){
+  graded = true;
+  running = false;
+  clearInterval(tick);
+  pauseBtn.hidden = true;
+  pstate.textContent = auto ? "時間到,已自動交卷" : "已交卷";
+  submitBtn.textContent = "看成績";
+  submitBtn.classList.add("done");
+
+  let right = 0;
+  const byTag = {};
+  Q.forEach((item, i) => {
+    const mine = ans[i];
+    const ok = mine === item.a;
+    if (ok) right++;
+    byTag[item.tag] = byTag[item.tag] || { ok:0, n:0 };
+    byTag[item.tag].n++;
+    if (ok) byTag[item.tag].ok++;
+
+    document.getElementById("q" + i).classList.add("graded");
+    const v = document.getElementById("v" + i);
+    v.textContent = ok ? "✓" : "✗";
+    v.className = "verdict " + (ok ? "y" : "n");
+    document.getElementById("o" + i + "-" + item.a).classList.add("is-ans");
+    if (mine !== undefined && !ok) document.getElementById("o" + i + "-" + mine).classList.add("is-bad");
+    document.getElementById("s" + i).hidden = false;
+    paper.querySelectorAll(`input[name=q${i}]`).forEach(r => r.disabled = true);
+  });
+
+  const score = right * PER;
+  const used = LIMIT - Math.max(0, left);
+  const blanks = TOTAL - Object.keys(ans).length;
+  const wrongList = Q.map((_, i) => i).filter(i => ans[i] !== Q[i].a);
+
+  let say;
+  if (score === 100) say = "滿分。明天這一單元可以放心了,睡飽比再刷題重要。";
+  else if (score >= 88) say = "穩。把下面錯的那幾題的解析看熟,明天就是這幾分的差別。";
+  else if (score >= 72) say = "及格線以上,但錯的題目多半是觀念沒釐清,不是粗心,務必逐題看解析。";
+  else if (score >= 52) say = "有底子但不夠熟。今晚把錯題的解析抄一遍關鍵句,明早再重做一次這份卷。";
+  else say = "先別刷題了。回課本把「三要素」和「v = f λ、回聲要除以 2」兩處讀熟,再回來重考。";
+
+  report.hidden = false;
+  report.innerHTML = `
+    <div class="top">
+      <span class="score">${score}<small> / 100</small></span>
+      <span class="used mono">答對 ${right}/${TOTAL}　未作答 ${blanks}　作答時間 ${fmt(used)}</span>
+    </div>
+    <p class="say">${say}</p>
+    <div class="rows">
+      ${Object.entries(byTag).map(([t, v]) => `
+        <div class="row"><span>${t}</span>
+        <span class="sc" style="color:${v.ok === v.n ? "var(--ok)" : (v.ok / v.n < .5 ? "var(--pen)" : "var(--ink)")}">${v.ok} / ${v.n}</span></div>`).join("")}
+    </div>
+    ${wrongList.length ? `<p class="jump">錯題:${wrongList.map(i => `<a href="#q${i}">第 ${i + 1} 題</a>`).join("")}</p>` : `<p class="jump">全部答對,沒有錯題。</p>`}`;
+
+  refreshCard();
+  report.scrollIntoView({ behavior:"smooth", block:"start" });
+  snap();
+}
+
+/* ---------- 跨重新發佈保留狀態 ---------- */
+function snap(){
+  try { window.claude?.hot?.snapshot({ ans, graded, left }); } catch (e) {}
+}
+function boot(s){
+  build();
+  if (s && s.ans){
+    ans = s.ans;
+    Object.entries(ans).forEach(([i, k]) => {
+      const el = document.getElementById("r" + i + "-" + k);
+      if (el) el.checked = true;
+    });
+    if (typeof s.left === "number") left = s.left;
+    refreshCard();
+    if (s.graded) grade(false);
+  }
+  clockEl.textContent = fmt(left);
+  if (!graded) startClock();
+}
+try {
+  window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? null);
+} catch (e) { boot(null); }
+</script>

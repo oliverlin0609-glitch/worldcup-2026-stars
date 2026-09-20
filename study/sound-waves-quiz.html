@@ -1,0 +1,507 @@
+<title>聲波 25 問</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#e9eef2; --surface:#ffffff; --surface-2:#f4f7f9;
+    --ink:#15212c; --muted:#5a6d7c; --line:#ccd7de;
+    --accent:#0c7d8c; --accent-ink:#ffffff; --accent-soft:#d6eef1;
+    --ok:#1d7a4d; --ok-soft:#dcf0e4;
+    --no:#ad3527; --no-soft:#f8e0dc;
+    --shadow:0 1px 2px rgba(21,33,44,.06), 0 8px 24px rgba(21,33,44,.07);
+    --radius:14px;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0d161d; --surface:#16212b; --surface-2:#1c2833;
+      --ink:#e4edf4; --muted:#93a7b6; --line:#2a3946;
+      --accent:#37c0d2; --accent-ink:#06222a; --accent-soft:#123640;
+      --ok:#4cc98a; --ok-soft:#10352a;
+      --no:#f08476; --no-soft:#3a1c19;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d161d; --surface:#16212b; --surface-2:#1c2833;
+    --ink:#e4edf4; --muted:#93a7b6; --line:#2a3946;
+    --accent:#37c0d2; --accent-ink:#06222a; --accent-soft:#123640;
+    --ok:#4cc98a; --ok-soft:#10352a;
+    --no:#f08476; --no-soft:#3a1c19;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size:16px; line-height:1.75;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{ max-width:720px; margin:0 auto; padding-inline:16px; padding-block:20px 56px; }
+  .mono{ font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums; }
+
+  /* ---------- header ---------- */
+  header{ margin-bottom:18px; }
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 4px;
+  }
+  h1{ font-size:clamp(26px,6vw,34px); font-weight:900; letter-spacing:.01em; margin:0; text-wrap:balance; }
+  .sub{ color:var(--muted); font-size:14px; margin:6px 0 0; }
+  #scope{ display:block; width:100%; height:48px; margin-top:14px; border-radius:8px; background:var(--surface-2); border:1px solid var(--line); }
+
+  /* ---------- status bar ---------- */
+  .status{
+    position:sticky; top:env(safe-area-inset-top, 0px); z-index:5;
+    background:var(--bg); padding-block:10px; margin-bottom:14px;
+  }
+  .status-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:13px; color:var(--muted); }
+  .track{ height:6px; border-radius:99px; background:var(--line); margin-top:8px; overflow:hidden; }
+  .fill{ height:100%; width:0%; background:var(--accent); border-radius:99px; transition:width .35s ease; }
+  .tally{ display:flex; gap:10px; }
+  .tally b{ font-weight:600; }
+  .tally .c{ color:var(--ok); } .tally .w{ color:var(--no); }
+
+  /* ---------- card ---------- */
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:20px 18px;
+  }
+  .qhead{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .qnum{ font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--accent); }
+  .chip{
+    font-size:11.5px; letter-spacing:.06em; color:var(--muted);
+    border:1px solid var(--line); border-radius:99px; padding:1px 9px; background:var(--surface-2);
+  }
+  .qtext{ font-size:18px; font-weight:700; line-height:1.65; margin:0 0 16px; text-wrap:pretty; }
+  .qtext .fx{ font-family:"IBM Plex Mono",monospace; font-weight:600; }
+
+  .opts{ display:flex; flex-direction:column; gap:9px; }
+  .opt{
+    display:flex; align-items:flex-start; gap:11px; width:100%; text-align:left;
+    font:inherit; color:inherit; cursor:pointer;
+    background:var(--surface-2); border:1.5px solid var(--line); border-radius:11px;
+    padding:12px 13px; transition:border-color .15s, background .15s, transform .08s;
+  }
+  .opt:hover:not(:disabled){ border-color:var(--accent); }
+  .opt:active:not(:disabled){ transform:scale(.995); }
+  .opt:disabled{ cursor:default; }
+  .opt:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .key{
+    flex:none; width:22px; height:22px; border-radius:6px; background:var(--surface); border:1px solid var(--line);
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--muted);
+    display:grid; place-items:center; margin-top:2px;
+  }
+  .opt .body{ flex:1; line-height:1.6; }
+  .opt .mark{ flex:none; font-weight:700; font-size:14px; margin-top:1px; }
+  .opt.correct{ border-color:var(--ok); background:var(--ok-soft); }
+  .opt.correct .key{ background:var(--ok); color:var(--surface); border-color:var(--ok); }
+  .opt.correct .mark{ color:var(--ok); }
+  .opt.wrong{ border-color:var(--no); background:var(--no-soft); }
+  .opt.wrong .key{ background:var(--no); color:var(--surface); border-color:var(--no); }
+  .opt.wrong .mark{ color:var(--no); }
+  .opt.dim{ opacity:.55; }
+
+  .why{ margin-top:16px; border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 10px 10px 0; padding:12px 14px; }
+  .why h3{ margin:0 0 4px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-family:"IBM Plex Mono",monospace; color:var(--accent); }
+  .why p{ margin:0; font-size:15px; line-height:1.7; }
+
+  .foot{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:18px; }
+  .hint{ font-size:12.5px; color:var(--muted); }
+  button.go{
+    font:inherit; font-weight:700; cursor:pointer;
+    background:var(--accent); color:var(--accent-ink); border:none; border-radius:10px;
+    padding:11px 22px; transition:filter .15s;
+  }
+  button.go:hover{ filter:brightness(1.08); }
+  button.go:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+  button.ghost{
+    font:inherit; font-weight:600; cursor:pointer;
+    background:transparent; color:var(--accent); border:1.5px solid var(--accent); border-radius:10px; padding:10px 18px;
+  }
+
+  /* ---------- result ---------- */
+  .score{ text-align:center; padding:8px 0 18px; }
+  .score .big{ font-family:"IBM Plex Mono",monospace; font-size:56px; font-weight:600; line-height:1; color:var(--accent); }
+  .score .big span{ font-size:24px; color:var(--muted); }
+  .score .verdict{ font-size:17px; font-weight:700; margin:12px 0 2px; }
+  .score .best{ font-size:13px; color:var(--muted); }
+  .breakdown{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:6px 0 22px; }
+  .tag-row{ display:flex; justify-content:space-between; gap:10px; font-size:14px; border:1px solid var(--line); background:var(--surface-2); border-radius:10px; padding:9px 12px; }
+  .tag-row .sc{ font-family:"IBM Plex Mono",monospace; font-weight:600; }
+  h2.sec{ font-size:15px; letter-spacing:.1em; text-transform:uppercase; font-family:"IBM Plex Mono",monospace; color:var(--muted); margin:0 0 10px; }
+  .miss{ border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:14px; margin-bottom:10px; }
+  .miss .q{ font-weight:700; margin:0 0 8px; }
+  .miss .line{ font-size:14.5px; margin:2px 0; }
+  .miss .yours{ color:var(--no); }
+  .miss .right{ color:var(--ok); }
+  .miss .ex{ font-size:14px; color:var(--muted); margin:8px 0 0; }
+  .actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:22px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">理化複習 · 第二章</p>
+    <h1>聲波 25 問</h1>
+    <p class="sub">點選答案立即對答案,每題附詳解。鍵盤 <span class="mono">1–4</span> 選答、<span class="mono">Enter</span> 下一題。</p>
+    <canvas id="scope" aria-hidden="true"></canvas>
+  </header>
+
+  <div class="status" id="status">
+    <div class="status-row">
+      <span class="mono" id="counter">第 01 / 25 題</span>
+      <span class="tally"><b class="c mono" id="nc">✓ 0</b><b class="w mono" id="nw">✗ 0</b></span>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <main id="stage"></main>
+</div>
+
+<script>
+const QUESTIONS = [
+  { tag:"產生與傳播", q:"聲音是由物體的什麼作用產生的?",
+    opts:["物體的振動","物體被加熱","物體靜止不動","物體發出的光"], a:0,
+    why:"一切聲音都來自物體的振動;振動停止,發聲也停止。用手輕按正在響的音叉,聲音會立刻消失。" },
+
+  { tag:"產生與傳播", q:"把電鈴放進玻璃鐘罩中逐漸抽出空氣,鈴聲會愈來愈小,這說明了什麼?",
+    opts:["電鈴壞掉了","聲音的傳播需要介質,真空不能傳聲","抽氣會降低電鈴的頻率","玻璃會吸收全部聲音"], a:1,
+    why:"聲音靠介質(固體、液體、氣體)的振動傳遞。空氣被抽走後沒有介質,聲音傳不出來,所以太空中太空人必須靠無線電通話。" },
+
+  { tag:"產生與傳播", q:"聲音在下列何種物質中傳播得最快?",
+    opts:["空氣","水","鋼鐵","真空"], a:2,
+    why:"聲速比較:<span class=\"mono\">固體 &gt; 液體 &gt; 氣體</span>,粒子排列愈緊密、傳遞愈快;真空則完全不能傳聲。" },
+
+  { tag:"產生與傳播", q:"常溫(約 15 °C)的空氣中,聲速最接近下列何值?",
+    opts:["34 m/s","340 m/s","3400 m/s","3×10⁸ m/s"], a:1,
+    why:"空氣中聲速約 <span class=\"mono\">340 m/s</span>,且溫度愈高聲速愈快(約每升高 1 °C 增加 0.6 m/s)。<span class=\"mono\">3×10⁸ m/s</span> 是光速。" },
+
+  { tag:"波的性質", q:"聲波屬於下列哪一種波?",
+    opts:["橫波","縱波(疏密波)","電磁波","不需介質的波"], a:1,
+    why:"空氣分子的振動方向與波前進方向「平行」,形成一疏一密的疏密波,屬於縱波。電磁波才不需介質。" },
+
+  { tag:"聲音三要素", q:"決定聲音「音調」高低的主要因素是什麼?",
+    opts:["振幅","頻率","波形","聲速"], a:1,
+    why:"頻率愈大,音調愈高。女生聲音比男生尖,就是因為聲帶振動頻率較高。" },
+
+  { tag:"聲音三要素", q:"同一把吉他,用力撥弦比輕輕撥弦聽起來更大聲,改變的是聲音的哪一個性質?",
+    opts:["音調","響度","音色","速度"], a:1,
+    why:"用力撥弦使振幅變大,響度(音量)變大;弦的長短鬆緊沒變,所以音調不變。響度也會隨距離變遠而減弱。" },
+
+  { tag:"聲音三要素", q:"鋼琴和小提琴彈奏同一個音,我們仍能分辨是哪種樂器,依據的是?",
+    opts:["音調不同","響度不同","音色(波形)不同","聲速不同"], a:2,
+    why:"發聲體材質與結構不同,振動的波形就不同,這就是音色。音調相同、響度相同時,音色是唯一的分辨依據。" },
+
+  { tag:"聽覺範圍", q:"一般人耳能聽見的聲音頻率範圍約為多少?",
+    opts:["0 ~ 20 Hz","20 ~ 20000 Hz","20 ~ 200 Hz","20000 Hz 以上"], a:1,
+    why:"人耳可聽聲的頻率約 <span class=\"mono\">20 Hz ~ 20000 Hz</span>。高於此範圍稱超聲波,低於此範圍稱次聲波。" },
+
+  { tag:"聽覺範圍", q:"下列何者是「超聲波」的應用?",
+    opts:["微波爐加熱食物","聲納探測海水深度","X 光照射檢查骨折","紅外線遙控器"], a:1,
+    why:"聲納、產檢超音波、超音波洗淨都是超聲波的應用;微波、X 光、紅外線都是電磁波,不是聲波。" },
+
+  { tag:"聽覺範圍", q:"地震、火山爆發常伴隨頻率低於 20 Hz 的聲波,這種聲波稱為?",
+    opts:["超聲波","次聲波","電磁波","駐波"], a:1,
+    why:"低於 20 Hz 稱次聲波,人耳聽不見但傳得遠,可用來監測地震與核爆。" },
+
+  { tag:"計算題", q:"對著山崖大喊,經過 2 秒後聽到回聲。若空氣中聲速為 340 m/s,人與山崖相距多少?",
+    opts:["170 m","340 m","680 m","1360 m"], a:1,
+    why:"聲音來回共走 <span class=\"mono\">340 × 2 = 680 m</span>,單程是一半:<span class=\"mono\">680 ÷ 2 = 340 m</span>。回聲題一定要記得除以 2。" },
+
+  { tag:"計算題", q:"某聲波在空氣中的頻率為 170 Hz,聲速為 340 m/s,其波長為多少?",
+    opts:["0.5 m","2 m","170 m","510 m"], a:1,
+    why:"波速公式 <span class=\"mono\">v = f λ</span>,所以 <span class=\"mono\">λ = 340 ÷ 170 = 2 m</span>。" },
+
+  { tag:"計算題", q:"看到閃電後約 3 秒才聽到雷聲,則雷擊處距離觀測者約多遠?(聲速 340 m/s)",
+    opts:["約 113 m","約 340 m","約 1020 m","約 9×10⁸ m"], a:2,
+    why:"光速極快,傳播時間可忽略,距離 <span class=\"mono\">≈ 340 × 3 = 1020 m</span>。這也是「先看到閃電、後聽到雷聲」的原因。" },
+
+  { tag:"反射與回聲", q:"在一般的小房間裡說話為什麼聽不到明顯的回聲?",
+    opts:["室內沒有空氣可以反射","反射音與原音相隔不到 0.1 秒,無法分辨","牆壁完全不反射聲音","室內聲速特別快"], a:1,
+    why:"人耳要能區分原音與回聲,兩者需相隔約 0.1 秒以上,對應障礙物至少約 17 m 遠。房間太小,反射音與原音重疊,只覺得聲音變響。" },
+
+  { tag:"反射與回聲", q:"音樂廳牆面與天花板常使用厚布幕或多孔材料,主要目的是?",
+    opts:["增加聲音的反射,使聲音更大","吸收多餘的反射音,減少回音干擾","提高聲音的頻率","加快聲音的傳播速度"], a:1,
+    why:"多孔材料能吸收聲能,減少來回反射造成的殘響與回音,使演奏聽起來清晰。光滑硬牆則相反,反射強、容易產生回音。" },
+
+  { tag:"反射與回聲", q:"蝙蝠在漆黑的洞穴中飛行卻不會撞到牆壁,主要是利用?",
+    opts:["發出超聲波並接收回聲來定位","夜視能力極佳","感應牆壁的磁場","靠次聲波加熱空氣"], a:0,
+    why:"蝙蝠發出超聲波,由回聲傳回的時間差判斷障礙物的方向與距離,稱為回聲定位;聲納與倒車雷達原理相同。" },
+
+  { tag:"共鳴", q:"把兩支頻率相同的音叉靠近,敲響其中一支後,另一支也跟著發聲。此現象稱為?",
+    opts:["回聲","共鳴(共振)","折射","繞射"], a:1,
+    why:"當外來振動的頻率與物體的自然頻率相同時,物體會被帶動而大幅振動,稱為共鳴。若兩支音叉頻率不同,就不會發生。" },
+
+  { tag:"樂器與發聲", q:"吉他的弦調得更緊時,發出的聲音會?",
+    opts:["音調變高","音調變低","響度變小","音色改變成另一種樂器"], a:0,
+    why:"弦「愈短、愈細、愈緊」→ 振動頻率愈高 → 音調愈高;反之愈長、愈粗、愈鬆則音調愈低。" },
+
+  { tag:"樂器與發聲", q:"在幾支裝水量不同的玻璃瓶瓶口「吹氣」,則水裝得最多的那一瓶?",
+    opts:["音調最低,因為水最多","音調最高,因為振動的空氣柱最短","響度最大","發不出聲音"], a:1,
+    why:"吹氣時發聲的是瓶內「空氣柱」,水愈多空氣柱愈短,頻率愈高、音調愈高。注意:若改成「敲打瓶身」,振動的是瓶子和水,結論相反,水愈多音調愈低。" },
+
+  { tag:"波形判讀", q:"示波器上甲、乙兩聲波的振幅相同,但相同時間內乙的波數較多,則?",
+    opts:["乙的音調較高,響度與甲相同","乙的響度較大,音調與甲相同","甲、乙完全相同","乙的聲速比甲快"], a:0,
+    why:"波數多代表頻率高 → 音調高;振幅相同代表響度相同。示波器題只要看兩件事:波的「高度」看響度,波的「密集程度」看音調。" },
+
+  { tag:"波的性質", q:"聲波由空氣進入水中時,下列哪一個物理量「不會」改變?",
+    opts:["波速","波長","頻率","響度"], a:2,
+    why:"頻率由聲源決定,換介質也不變;而水中聲速較大,由 <span class=\"mono\">v = f λ</span> 可知波長會變長。" },
+
+  { tag:"波的性質", q:"敲擊很長的鐵管一端,另一端的人先後聽到兩次聲響。先聽到的那一次是經由什麼傳來的?",
+    opts:["空氣,因為空氣比較輕","鐵管,因為固體中聲速較快","地面反射的回聲","兩次同時到達"], a:1,
+    why:"同一段距離,聲速大者先到。鐵管(固體)中的聲速遠大於空氣,所以經鐵管傳來的聲音先到,經空氣傳來的後到。" },
+
+  { tag:"噪音防治", q:"噪音的強弱程度通常用什麼單位來表示?",
+    opts:["赫茲(Hz)","分貝(dB)","公尺/秒(m/s)","瓦特(W)"], a:1,
+    why:"分貝(dB)描述聲音強度,0 dB 約為人耳可聽的最小聲;長期暴露在 90 dB 以上會傷害聽力。Hz 是頻率的單位。" },
+
+  { tag:"噪音防治", q:"下列何者「不是」有效的噪音防治方法?",
+    opts:["在機車排氣管加裝消音器","在馬路旁種行道樹、設隔音牆","工作時配戴耳塞","把教室窗戶全部打開"], a:3,
+    why:"防治噪音有三條路:在「聲源」減弱、在「傳播途徑」阻隔、在「接收者耳朵」防護。打開窗戶反而讓外面的噪音更容易傳進來。" }
+];
+
+const LETTERS = ["A","B","C","D"];
+const stage = document.getElementById("stage");
+const fill = document.getElementById("fill");
+const counter = document.getElementById("counter");
+const ncEl = document.getElementById("nc");
+const nwEl = document.getElementById("nw");
+const statusBar = document.getElementById("status");
+
+let order = QUESTIONS.map((_, i) => i);
+let idx = 0;
+let picks = {};      // questionIndex -> chosen option index
+let locked = false;
+
+function pad(n){ return String(n).padStart(2, "0"); }
+function correctCount(){ return order.filter(i => picks[i] === QUESTIONS[i].a).length; }
+function wrongCount(){ return Object.keys(picks).filter(i => picks[i] !== QUESTIONS[i].a).length; }
+
+function updateStatus(done){
+  const total = order.length;
+  counter.textContent = done ? `完成 ${total} 題` : `第 ${pad(idx + 1)} / ${pad(total)} 題`;
+  fill.style.width = ((done ? total : idx) / total * 100) + "%";
+  ncEl.textContent = "✓ " + correctCount();
+  nwEl.textContent = "✗ " + wrongCount();
+}
+
+function renderQuestion(){
+  const qi = order[idx];
+  const item = QUESTIONS[qi];
+  locked = qi in picks;
+
+  stage.innerHTML = `
+    <section class="card">
+      <div class="qhead">
+        <span class="qnum">Q${pad(idx + 1)}</span>
+        <span class="chip">${item.tag}</span>
+      </div>
+      <p class="qtext">${item.q}</p>
+      <div class="opts" id="opts">
+        ${item.opts.map((o, i) => `
+          <button class="opt" data-i="${i}" id="opt-${qi}-${i}">
+            <span class="key">${LETTERS[i]}</span>
+            <span class="body">${o}</span>
+            <span class="mark" id="mark-${qi}-${i}"></span>
+          </button>`).join("")}
+      </div>
+      <div class="why" id="why" hidden>
+        <h3>詳解</h3>
+        <p>${item.why}</p>
+      </div>
+      <div class="foot">
+        <span class="hint" id="hint">選一個答案</span>
+        <button class="go" id="next" hidden>${idx === order.length - 1 ? "看成績" : "下一題"}</button>
+      </div>
+    </section>`;
+
+  stage.querySelectorAll(".opt").forEach(btn => {
+    btn.addEventListener("click", () => choose(parseInt(btn.dataset.i, 10)));
+  });
+  if (locked) reveal(picks[qi], true);
+  document.getElementById("next").addEventListener("click", next);
+  updateStatus(false);
+}
+
+function choose(i){
+  if (locked) return;
+  const qi = order[idx];
+  picks[qi] = i;
+  locked = true;
+  reveal(i, false);
+  updateStatus(false);
+  save();
+}
+
+function reveal(chosen, silent){
+  const qi = order[idx];
+  const item = QUESTIONS[qi];
+  stage.querySelectorAll(".opt").forEach(btn => {
+    const i = parseInt(btn.dataset.i, 10);
+    btn.disabled = true;
+    const mark = document.getElementById(`mark-${qi}-${i}`);
+    if (i === item.a){ btn.classList.add("correct"); mark.textContent = "✓"; }
+    else if (i === chosen){ btn.classList.add("wrong"); mark.textContent = "✗"; }
+    else { btn.classList.add("dim"); }
+  });
+  document.getElementById("why").hidden = false;
+  const hint = document.getElementById("hint");
+  hint.textContent = chosen === item.a ? "答對了" : `正確答案是 ${LETTERS[item.a]}`;
+  hint.style.color = chosen === item.a ? "var(--ok)" : "var(--no)";
+  const nextBtn = document.getElementById("next");
+  nextBtn.hidden = false;
+  if (!silent) nextBtn.focus({ preventScroll:true });
+}
+
+function next(){
+  if (idx < order.length - 1){ idx++; renderQuestion(); window.scrollTo({ top:0, behavior:"smooth" }); }
+  else renderResult();
+}
+
+function verdictFor(pct){
+  if (pct === 100) return "滿分,聲波這章可以收了。";
+  if (pct >= 88) return "很穩,只剩幾個細節要補。";
+  if (pct >= 72) return "及格以上,錯的那幾題觀念要再讀一次。";
+  if (pct >= 52) return "有基礎但不夠熟,建議把錯題重做一輪。";
+  return "先回去把課本這章看過,再回來重測。";
+}
+
+function renderResult(){
+  const total = order.length;
+  const right = correctCount();
+  const pct = Math.round(right / total * 100);
+  const missed = order.filter(i => picks[i] !== QUESTIONS[i].a);
+
+  const byTag = {};
+  order.forEach(i => {
+    const t = QUESTIONS[i].tag;
+    byTag[t] = byTag[t] || { ok:0, n:0 };
+    byTag[t].n++;
+    if (picks[i] === QUESTIONS[i].a) byTag[t].ok++;
+  });
+
+  let best = right;
+  try {
+    const stored = parseInt(localStorage.getItem("soundwave-best") || "0", 10);
+    best = Math.max(stored || 0, right);
+    localStorage.setItem("soundwave-best", String(best));
+  } catch (e) { /* storage unavailable */ }
+
+  stage.innerHTML = `
+    <section class="card">
+      <div class="score">
+        <div class="big">${right}<span> / ${total}</span></div>
+        <p class="verdict">${verdictFor(pct)}</p>
+        <p class="best mono">正確率 ${pct}%　·　歷史最佳 ${best} 題</p>
+      </div>
+
+      <h2 class="sec">單元表現</h2>
+      <div class="breakdown">
+        ${Object.entries(byTag).map(([t, v]) => `
+          <div class="tag-row"><span>${t}</span><span class="sc" style="color:${v.ok === v.n ? "var(--ok)" : (v.ok / v.n < .5 ? "var(--no)" : "var(--ink)")}">${v.ok}/${v.n}</span></div>`).join("")}
+      </div>
+
+      ${missed.length ? `<h2 class="sec">錯題複習 (${missed.length})</h2>` : `<h2 class="sec">沒有錯題</h2>`}
+      ${missed.map(i => {
+        const it = QUESTIONS[i];
+        const mine = picks[i];
+        return `<div class="miss">
+          <p class="q">${it.q}</p>
+          <p class="line yours">你選的:${mine === undefined ? "未作答" : LETTERS[mine] + "　" + it.opts[mine]}</p>
+          <p class="line right">正確答案:${LETTERS[it.a]}　${it.opts[it.a]}</p>
+          <p class="ex">${it.why}</p>
+        </div>`;
+      }).join("")}
+
+      <div class="actions">
+        ${missed.length ? `<button class="go" id="redo-wrong">只重做錯的 ${missed.length} 題</button>` : ""}
+        <button class="ghost" id="restart">全部重測</button>
+      </div>
+    </section>`;
+
+  const rw = document.getElementById("redo-wrong");
+  if (rw) rw.addEventListener("click", () => start(missed));
+  document.getElementById("restart").addEventListener("click", () => start(QUESTIONS.map((_, i) => i)));
+  updateStatus(true);
+  statusBar.scrollIntoView({ block:"start", behavior:"smooth" });
+}
+
+function start(list){
+  order = list.slice();
+  idx = 0;
+  picks = {};
+  renderQuestion();
+  window.scrollTo({ top:0, behavior:"smooth" });
+  save();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const n = "1234".indexOf(e.key);
+  if (n >= 0 && !locked && document.getElementById("opts")) { choose(n); e.preventDefault(); return; }
+  if (e.key === "Enter" || e.key === " ") {
+    const btn = document.getElementById("next");
+    if (btn && !btn.hidden) { btn.click(); e.preventDefault(); }
+  }
+});
+
+/* ---------- oscilloscope header ---------- */
+const cv = document.getElementById("scope");
+const ctx = cv.getContext("2d");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let phase = 0;
+
+function paint(){
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if (cv.width !== w * dpr || cv.height !== h * dpr){
+    cv.width = w * dpr; cv.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  ctx.clearRect(0, 0, w, h);
+  const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#0c7d8c";
+  const progress = order.length ? idx / order.length : 0;
+  const freq = 2.2 + progress * 3.4;          // 波形隨進度變密
+  const amp = h * 0.28;
+
+  ctx.beginPath();
+  for (let x = 0; x <= w; x++){
+    const t = x / w;
+    const y = h / 2 + Math.sin(t * Math.PI * 2 * freq + phase) * amp * (0.55 + 0.45 * Math.sin(t * Math.PI));
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.18;
+  ctx.beginPath();
+  ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
+  ctx.strokeStyle = accent; ctx.lineWidth = 1; ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+function loop(){ phase += 0.03; paint(); requestAnimationFrame(loop); }
+window.addEventListener("resize", paint);
+
+/* ---------- state across republishes ---------- */
+function save(){
+  try { window.claude?.hot?.snapshot({ order, idx, picks }); } catch (e) {}
+}
+function boot(s){
+  if (s && Array.isArray(s.order) && s.order.length){
+    order = s.order; idx = Math.min(s.idx || 0, order.length - 1); picks = s.picks || {};
+  }
+  renderQuestion();
+  paint();
+  if (!reduce) loop();
+}
+try {
+  window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? null);
+} catch (e) { boot(null); }
+</script>
